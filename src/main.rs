@@ -1,45 +1,24 @@
 use std::io::{Cursor, Read, Write};
-use std::net::TcpStream;
 
-use anyhow::{bail, ensure, Context, Result};
+use anyhow::{bail, ensure, Result};
 use clap::Parser;
 use cli::Cli;
 use status_response::StatusResponse;
 
-mod status_response;
 mod cli;
+mod status_response;
 
 fn main() -> Result<()> {
-    let cli = Cli::parse();
-    let host = cli.host.as_str();
-    let port = cli.port;
-    let stream = &mut TcpStream::connect((host, port)).context("failed to connect")?;
-
-    let protocol_version = -1;
-    let next_state = 1;
-
-    write_handshake(stream, protocol_version, host, port, next_state)?;
-    write_status_request(stream)?;
-    stream.flush()?;
-    
-    let status_response = read_status_response(stream)?;
-
-    let players = status_response.players;
-
-    println!("{} player(s) online:", players.online);
-
-    for player in &players.sample {
-        println!("{}", player.name);
-    }
-
-    if players.online > players.sample.len() as i32 {
-        println!("...");
-    }
-
-    Ok(())
+    Cli::parse().run()
 }
 
-fn write_handshake<W: Write>(w: &mut W, protocol_version: i32, host: &str, port: u16, next_state: i32) -> Result<()> {
+fn write_handshake<W: Write>(
+    w: &mut W,
+    protocol_version: i32,
+    host: &str,
+    port: u16,
+    next_state: i32,
+) -> Result<()> {
     write_packet(w, 0x00, |w| {
         write_var_int(w, protocol_version)?;
         write_string(w, host)?;
@@ -154,9 +133,9 @@ fn read_var_int<R: Read + ?Sized>(r: &mut R) -> Result<i32> {
         value |= (current_byte & SEGMENT_BITS) << position;
 
         if (current_byte & CONTINUE_BIT) == 0 {
-            break
+            break;
         }
-        
+
         position += 7;
 
         if position >= 32 {
