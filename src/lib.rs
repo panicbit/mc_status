@@ -1,4 +1,5 @@
 pub mod cli;
+pub mod config;
 pub mod protocol;
 
 use std::io::Write;
@@ -8,6 +9,8 @@ use anyhow::{Context, Result};
 pub use cli::Cli;
 
 use protocol::StatusResponse;
+
+const APP_NAME: &str = "mc_status";
 
 pub fn get_server_status(host: &str, port: u16) -> Result<StatusResponse> {
     let stream = &mut TcpStream::connect((host, port)).context("failed to connect")?;
