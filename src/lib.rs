@@ -7,6 +7,7 @@ use std::net::TcpStream;
 
 use anyhow::{Context, Result};
 pub use cli::Cli;
+pub use config::Config;
 
 use protocol::StatusResponse;
 
