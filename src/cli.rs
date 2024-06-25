@@ -4,6 +4,7 @@ pub mod add;
 pub mod check;
 pub mod delete;
 pub mod list;
+pub mod reset;
 
 #[derive(clap::Parser)]
 #[group(skip)]
@@ -27,6 +28,7 @@ pub enum Command {
     List(list::Cli),
     Delete(delete::Cli),
     Add(add::Cli),
+    Reset(reset::Cli)
 }
 
 impl Command {
@@ -36,6 +38,7 @@ impl Command {
             Command::List(cli) => cli.run(),
             Command::Delete(cli) => cli.run(),
             Command::Add(cli) => cli.run(),
+            Command::Reset(cli) => cli.run(),
         }
     }
 }
