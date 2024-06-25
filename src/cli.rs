@@ -1,32 +1,41 @@
 use anyhow::Result;
 
-pub mod main;
+pub mod add;
+pub mod check;
+pub mod delete;
+pub mod list;
 
 #[derive(clap::Parser)]
-#[clap(args_conflicts_with_subcommands = true)]
 #[group(skip)]
 pub struct Cli {
-    #[clap(flatten)]
-    main: Option<main::Cli>,
     #[clap(subcommand)]
     command: Option<Command>,
 }
 
 impl Cli {
     pub fn run(self) -> Result<()> {
-        if let Some(main) = self.main {
-            return main.run();
+        match self.command {
+            Some(command) => command.run(),
+            None => check::Cli {}.run(),
         }
-
-        self.command.unwrap().run()
     }
 }
 
 #[derive(clap::Subcommand, Clone)]
-pub enum Command {}
+pub enum Command {
+    Check(check::Cli),
+    List(list::Cli),
+    Delete(delete::Cli),
+    Add(add::Cli),
+}
 
 impl Command {
     pub fn run(self) -> Result<()> {
-        match self {}
+        match self {
+            Command::Check(cli) => cli.run(),
+            Command::List(cli) => cli.run(),
+            Command::Delete(cli) => cli.run(),
+            Command::Add(cli) => cli.run(),
+        }
     }
 }
