@@ -1,6 +1,5 @@
-use anyhow::{Result};
-use crate::{Config};
-
+use crate::Config;
+use anyhow::Result;
 
 #[derive(clap::Args, Clone)]
 pub struct Cli {}

@@ -1,6 +1,6 @@
-use anyhow::{Result};
+use crate::Config;
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use crate::{Config};
 
 #[derive(Serialize, Deserialize, Default, Clone, clap::Args)]
 pub struct Server {
@@ -17,7 +17,9 @@ pub struct Cli {
 impl Cli {
     pub fn run(self) -> Result<()> {
         let mut config = Config::load()?;
-        config.server_list.retain(|server|server.host != self.server.host || server.port != self.server.port);
+        config
+            .server_list
+            .retain(|server| server.host != self.server.host || server.port != self.server.port);
         config.save()?;
         Ok(())
     }

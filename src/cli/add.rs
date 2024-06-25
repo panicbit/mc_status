@@ -1,6 +1,6 @@
+use crate::{config, output, Config};
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
-use crate::{Config, config, output};
 
 #[derive(Serialize, Deserialize, Default, Clone, clap::Args)]
 pub struct Server {
@@ -19,13 +19,16 @@ impl Cli {
         let mut config = Config::load()?;
         let server = config::Server::new(self.server.host.clone(), self.server.port);
         config.server_list.insert(server.clone());
-        let server_status = crate::get_server_status(&self.server.host, self.server.port).context("failed to get server status");
+        let server_status = crate::get_server_status(&self.server.host, self.server.port)
+            .context("failed to get server status");
         match server_status {
             Ok(server_status) => {
                 output::display_response(&server_status, &server);
                 config.save()?;
             }
-            Err(err) => {println!("{:?}", err)}
+            Err(err) => {
+                println!("{:?}", err)
+            }
         }
         Ok(())
     }

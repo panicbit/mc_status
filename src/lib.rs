@@ -1,7 +1,7 @@
 pub mod cli;
 pub mod config;
-pub mod protocol;
 pub mod output;
+pub mod protocol;
 
 use std::io::Write;
 use std::net::{TcpStream, ToSocketAddrs};
@@ -17,7 +17,8 @@ const APP_NAME: &str = "mc_status";
 
 pub fn get_server_status(host: &str, port: u16) -> Result<StatusResponse> {
     let addr = &(host, port).to_socket_addrs()?.next().unwrap();
-    let stream = &mut TcpStream::connect_timeout(addr, Duration::from_secs(3)).context("failed to connect")?;
+    let stream = &mut TcpStream::connect_timeout(addr, Duration::from_secs(3))
+        .context("failed to connect")?;
 
     let protocol_version = -1;
     let next_state = 1;

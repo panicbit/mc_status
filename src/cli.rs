@@ -1,24 +1,22 @@
 use anyhow::Result;
 
-pub mod check;
-pub mod list;
-pub mod delete;
 pub mod add;
-
+pub mod check;
+pub mod delete;
+pub mod list;
 
 #[derive(clap::Parser)]
 #[group(skip)]
 pub struct Cli {
     #[clap(subcommand)]
-    command: Option<Command>
+    command: Option<Command>,
 }
 
 impl Cli {
     pub fn run(self) -> Result<()> {
-        match self.command
-        {
-            Some(command) => {command.run()}
-            None => {check::Cli{}.run()}
+        match self.command {
+            Some(command) => command.run(),
+            None => check::Cli {}.run(),
         }
     }
 }
@@ -28,24 +26,16 @@ pub enum Command {
     Check(check::Cli),
     List(list::Cli),
     Delete(delete::Cli),
-    Add(add::Cli)
+    Add(add::Cli),
 }
 
 impl Command {
     pub fn run(self) -> Result<()> {
         match self {
-            Command::Check(cli) => {
-                cli.run()
-            }
-            Command::List(cli) => {
-                cli.run()
-            }
-            Command::Delete(cli) => {
-                cli.run()
-            }
-            Command::Add(cli) => {
-                cli.run()
-            }
+            Command::Check(cli) => cli.run(),
+            Command::List(cli) => cli.run(),
+            Command::Delete(cli) => cli.run(),
+            Command::Add(cli) => cli.run(),
         }
     }
 }

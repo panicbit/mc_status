@@ -1,6 +1,6 @@
-use std::collections::HashSet;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 
 use crate::APP_NAME;
 
@@ -12,18 +12,17 @@ pub struct Server {
 
 impl Server {
     pub fn new(host: String, port: u16) -> Server {
-        Server{host, port}
+        Server { host, port }
     }
 }
 
 #[derive(Serialize, Deserialize, Default, Debug)]
 pub struct Config {
-    pub server_list: HashSet<Server>
+    pub server_list: HashSet<Server>,
 }
 
 impl Config {
     const NAME: &'static str = "config";
-
 
     pub fn load() -> Result<Self> {
         let config = confy::load::<Self>(APP_NAME, Self::NAME)?;
