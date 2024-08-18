@@ -4,8 +4,8 @@ use crate::protocol::StatusResponse;
 pub fn display_response(response: &StatusResponse, server: &Server) {
     let players = &response.players;
     println!(
-        "{} player(s) online on {}:{}:",
-        players.online, server.host, server.port
+        "{} player(s) online on {}, address: {}:{}",
+        players.online, server.alias,server.host, server.port
     );
 
     for player in &players.sample {

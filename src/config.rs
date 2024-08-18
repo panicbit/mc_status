@@ -8,11 +8,12 @@ use crate::APP_NAME;
 pub struct Server {
     pub host: String,
     pub port: u16,
+    pub alias: String
 }
 
 impl Server {
-    pub fn new(host: String, port: u16) -> Server {
-        Server { host, port }
+    pub fn new(host: String, port: u16, alias: String) -> Server {
+        Server { host, port, alias}
     }
 }
 
