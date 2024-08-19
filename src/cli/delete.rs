@@ -4,8 +4,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Default, Clone, clap::Args)]
 pub struct Server {
-    pub host: String,
-    pub port: u16,
+    pub alias: String
 }
 
 #[derive(clap::Args, Clone)]
@@ -15,11 +14,11 @@ pub struct Cli {
 }
 
 impl Cli {
-    pub fn run(self) -> Result<()> {
+    pub async fn run(self) -> Result<()> {
         let mut config = Config::load()?;
         config
             .server_list
-            .retain(|server| server.host != self.server.host || server.port != self.server.port);
+            .retain(|server| server.alias != self.server.alias);
         config.save()?;
         Ok(())
     }

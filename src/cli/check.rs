@@ -12,11 +12,11 @@ pub struct Server {
 pub struct Cli {}
 
 impl Cli {
-    pub fn run(self) -> Result<()> {
+    pub async fn run(self) -> Result<()> {
         let config = Config::load()?;
         let mut all_responses = Vec::new();
         for server in &config.server_list {
-            let server_status = crate::get_server_status(&server.host, server.port)
+            let server_status = crate::get_server_status(&server.host, server.port).await
                 .context("failed to get server status");
             match server_status {
                 Ok(server_status) => all_responses.push((server_status, server)),
