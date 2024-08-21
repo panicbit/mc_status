@@ -28,7 +28,7 @@ pub enum Command {
     List(list::Cli),
     Delete(delete::Cli),
     Add(add::Cli),
-    Reset(reset::Cli)
+    Reset(reset::Cli),
 }
 
 impl Command {
