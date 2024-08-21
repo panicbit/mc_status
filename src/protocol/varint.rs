@@ -1,6 +1,6 @@
 use super::read_byte;
 use anyhow::{bail, Result};
-use tokio::io::{AsyncWrite, AsyncRead, AsyncWriteExt};
+use tokio::io::{AsyncRead, AsyncWrite, AsyncWriteExt};
 
 const SEGMENT_BITS: u32 = 0x7F;
 const CONTINUE_BIT: u32 = 0x80;
