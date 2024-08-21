@@ -1,6 +1,8 @@
+use std::time::Duration;
 use crate::{output, Config};
-use anyhow::{Context, Result};
+use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
+use tokio::time::timeout;
 
 #[derive(Serialize, Deserialize, Default, Clone, clap::Args)]
 pub struct Server {
@@ -12,17 +14,20 @@ pub struct Server {
 pub struct Cli {}
 
 impl Cli {
-    pub fn run(self) -> Result<()> {
+    pub async fn run(self) -> Result<()> {
         let config = Config::load()?;
         let mut all_responses = Vec::new();
         for server in &config.server_list {
-            let server_status = crate::get_server_status(&server.host, server.port)
-                .context("failed to get server status");
+            let server_status_future = crate::get_server_status(&server.host, server.port);
+            let timeout_status = timeout(Duration::from_millis(100), server_status_future).await;
+            let server_status =
+                match timeout_status {
+                    Ok(server_status) => server_status,
+                    Err(_err) => { bail!("timed out!") }
+                };
             match server_status {
                 Ok(server_status) => all_responses.push((server_status, server)),
-                Err(err) => {
-                    println!("{:?}", err)
-                }
+                Err(err) => { return Err(err) }
             }
         }
         output::display_all_responses(all_responses);

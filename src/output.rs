@@ -3,8 +3,8 @@ use crate::protocol::StatusResponse;
 
 pub fn display_response(response: &StatusResponse, server: &Server) {
     let players = &response.players;
-    println!(
-        "{} player(s) online on {}, address: {}:{}",
+
+    println!("{} player(s) online on {} | IP: {}:{}",
         players.online, server.alias,server.host, server.port
     );
 

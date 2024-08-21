@@ -32,7 +32,6 @@ impl Config {
 
     pub fn save(&self) -> Result<()> {
         confy::store(APP_NAME, Self::NAME, self)?;
-
         Ok(())
     }
 }

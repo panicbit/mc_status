@@ -5,7 +5,7 @@ use anyhow::Result;
 pub struct Cli {}
 
 impl Cli {
-    pub fn run(self) -> Result<()> {
+    pub async fn run(self) -> Result<()> {
         let config = Config::load()?;
         for server in &config.server_list {
             println!("{:?}", server);

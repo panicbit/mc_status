@@ -1,33 +1,36 @@
+#![feature(async_closure)]
+
 pub mod cli;
 pub mod config;
 pub mod output;
 pub mod protocol;
 
-use std::io::Write;
-use std::net::{TcpStream, ToSocketAddrs};
-use std::time::Duration;
+use std::net::ToSocketAddrs;
+use tokio::io::AsyncWriteExt;
 
 use anyhow::{Context, Result};
 pub use cli::Cli;
 pub use config::Config;
+use tokio::net::TcpStream;
 
 use protocol::StatusResponse;
 
 const APP_NAME: &str = "mc_status";
 
-pub fn get_server_status(host: &str, port: u16) -> Result<StatusResponse> {
+pub async fn get_server_status(host: &str, port: u16) -> Result<StatusResponse> {
     let addr = &(host, port).to_socket_addrs()?.next().unwrap();
-    let stream = &mut TcpStream::connect_timeout(addr, Duration::from_secs(3))
+    let stream = &mut TcpStream::connect(addr)
+        .await
         .context("failed to connect")?;
 
     let protocol_version = -1;
     let next_state = 1;
 
-    protocol::write_handshake(stream, protocol_version, host, port, next_state)?;
-    protocol::write_status_request(stream)?;
-    stream.flush()?;
+    protocol::write_handshake(stream, protocol_version, host, port, next_state).await?;
+    protocol::write_status_request(stream).await?;
+    stream.flush().await?;
 
-    let status_response = protocol::read_status_response(stream)?;
+    let status_response = protocol::read_status_response(stream).await?;
 
     Ok(status_response)
 }

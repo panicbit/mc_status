@@ -14,10 +14,10 @@ pub struct Cli {
 }
 
 impl Cli {
-    pub fn run(self) -> Result<()> {
+    pub async fn run(self) -> Result<()> {
         match self.command {
-            Some(command) => command.run(),
-            None => check::Cli {}.run(),
+            Some(command) => command.run().await,
+            None => check::Cli {}.run().await,
         }
     }
 }
@@ -32,13 +32,13 @@ pub enum Command {
 }
 
 impl Command {
-    pub fn run(self) -> Result<()> {
+    pub async fn run(self) -> Result<()> {
         match self {
-            Command::Check(cli) => cli.run(),
-            Command::List(cli) => cli.run(),
-            Command::Delete(cli) => cli.run(),
-            Command::Add(cli) => cli.run(),
-            Command::Reset(cli) => cli.run(),
+            Command::Check(cli) => cli.run().await,
+            Command::List(cli) => cli.run().await,
+            Command::Delete(cli) => cli.run().await,
+            Command::Add(cli) => cli.run().await,
+            Command::Reset(cli) => cli.run().await,
         }
     }
 }

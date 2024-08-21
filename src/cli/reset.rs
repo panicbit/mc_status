@@ -5,7 +5,7 @@ use anyhow::Result;
 pub struct Cli {}
 
 impl Cli {
-    pub fn run(self) -> Result<()> {
+    pub async fn run(self) -> Result<()> {
         let mut config = Config::load()?;
         config.server_list.clear();
         config.save()?;
