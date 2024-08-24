@@ -1,10 +1,8 @@
-use crate::{config, output, Config};
-use anyhow::{bail, Result};
+use crate::{config, get_server_status, output, Config};
+use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::io;
 use std::ops::ControlFlow;
-use std::time::Duration;
-use tokio::time::timeout;
 
 #[derive(Serialize, Deserialize, Default, Clone, clap::Args)]
 pub struct Server {
@@ -35,21 +33,12 @@ impl Cli {
         }
 
         config.server_list.insert(server.clone());
-        let server_status_future = crate::get_server_status(&server.host, server.port);
-        let timeout_status = timeout(Duration::from_millis(100), server_status_future).await;
-        let server_status = match timeout_status {
-            Ok(server_status) => server_status,
-            Err(_err) => {
-                bail!("timed out!")
-            }
-        };
-        match server_status {
-            Ok(server_status) => {
-                output::display_response(&server_status, &server);
-                config.save()
-            }
-            Err(err) => return Err(err),
-        }
+        let server_status = get_server_status(&server.host, server.port)
+            .await
+            .context("failed to get server status")?;
+
+        output::display_response(&server_status, &server);
+        config.save()
     }
     fn overwrite_server(&self, config: &Config, input_alias: &String) -> ControlFlow<()> {
         let found_server = config
@@ -63,7 +52,7 @@ impl Cli {
                 choice.clear();
                 io::stdin().read_line(&mut choice).unwrap();
                 let choice = choice.trim();
-                if choice == "Y" || choice == "" {
+                if choice == "Y" || choice.is_empty() {
                     return ControlFlow::Continue(());
                 }
                 if choice == "n" {
@@ -72,6 +61,6 @@ impl Cli {
                 println!("Invalid input, try again");
             }
         }
-        return ControlFlow::Continue(());
+        ControlFlow::Continue(())
     }
 }
