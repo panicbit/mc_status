@@ -1,7 +1,6 @@
 use crate::{config, get_server_status, output, Config};
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
-use std::io;
 use std::ops::ControlFlow;
 
 #[derive(Serialize, Deserialize, Default, Clone, clap::Args)]
@@ -25,10 +24,7 @@ impl Cli {
             self.server.port,
             self.server.alias.clone(),
         );
-        if self
-            .overwrite_server(&config, &self.server.alias)
-            .is_break()
-        {
+        if self.overwrite_server(&config).is_break() {
             return Ok(());
         }
 
@@ -40,27 +36,27 @@ impl Cli {
         output::display_response(&server_status, &server);
         config.save()
     }
-    fn overwrite_server(&self, config: &Config, input_alias: &String) -> ControlFlow<()> {
+
+    fn overwrite_server(&self, config: &Config) -> ControlFlow<()> {
         let found_server = config
             .server_list
             .iter()
-            .find(|server| input_alias == &server.alias);
+            .find(|server| self.server.alias == server.alias);
+
         if let Some(server) = found_server {
-            loop {
-                println!("Do you want to overwrite {}? (Y/n)", server.alias);
-                let mut choice = String::new();
-                choice.clear();
-                io::stdin().read_line(&mut choice).unwrap();
-                let choice = choice.trim();
-                if choice == "Y" || choice.is_empty() {
-                    return ControlFlow::Continue(());
-                }
-                if choice == "n" {
-                    return ControlFlow::Break(());
-                }
-                println!("Invalid input, try again");
+            let overwrite_confirmed = dialoguer::Confirm::new()
+                .with_prompt(format!("Do you want to overwrite {}?", server.alias))
+                .default(true)
+                .interact()
+                .unwrap();
+
+            if overwrite_confirmed {
+                return ControlFlow::Continue(());
+            } else {
+                return ControlFlow::Break(());
             }
         }
+
         ControlFlow::Continue(())
     }
 }
