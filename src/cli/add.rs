@@ -52,7 +52,7 @@ impl Cli {
                 choice.clear();
                 io::stdin().read_line(&mut choice).unwrap();
                 let choice = choice.trim();
-                if choice == "Y" || choice == "" {
+                if choice == "Y" || choice.is_empty() {
                     return ControlFlow::Continue(());
                 }
                 if choice == "n" {
@@ -61,6 +61,6 @@ impl Cli {
                 println!("Invalid input, try again");
             }
         }
-        return ControlFlow::Continue(());
+        ControlFlow::Continue(())
     }
 }
