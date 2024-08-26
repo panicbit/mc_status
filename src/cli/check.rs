@@ -1,6 +1,6 @@
 use crate::{get_server_status, output, Config};
 use anyhow::{Context, Result};
-use futures::{future, FutureExt};
+use futures::future;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Default, Clone, clap::Args)]
@@ -18,12 +18,10 @@ impl Cli {
         let mut result_futures = Vec::new();
 
         for server in config.server_list {
-            let host = server.host.clone();
-
             let result_future = tokio::spawn(async move {
-                get_server_status(&host, server.port)
-                    .map(|result| (server, result))
-                    .await
+                let result = get_server_status(&server.host, server.port).await;
+
+                (server, result)
             });
 
             result_futures.push(result_future);
