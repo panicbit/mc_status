@@ -1,5 +1,6 @@
 use crate::{get_server_status, output, Config};
 use anyhow::{Context, Result};
+use futures::{future, FutureExt};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Default, Clone, clap::Args)]
@@ -14,17 +15,25 @@ pub struct Cli {}
 impl Cli {
     pub async fn run(self) -> Result<()> {
         let config = Config::load()?;
-        let mut all_responses = Vec::new();
+        let mut result_futures = Vec::new();
 
-        for server in &config.server_list {
-            let server_status = get_server_status(&server.host, server.port)
-                .await
-                .context("failed to get server status")?;
+        for server in config.server_list {
+            let host = server.host.clone();
 
-            all_responses.push((server_status, server));
+            let result_future = tokio::spawn(async move {
+                get_server_status(&host, server.port)
+                    .map(|result| (server, result))
+                    .await
+            });
+
+            result_futures.push(result_future);
         }
 
-        output::display_all_responses(all_responses);
+        for future_result in future::join_all(result_futures).await {
+            let (server, server_status_result) = future_result.context("failed to run task")?;
+
+            output::display_response_result(&server, server_status_result);
+        }
 
         Ok(())
     }

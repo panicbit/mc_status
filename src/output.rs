@@ -1,7 +1,17 @@
+use anyhow::Result;
+
 use crate::config::Server;
 use crate::protocol::StatusResponse;
 
-pub fn display_response(response: &StatusResponse, server: &Server) {
+pub fn display_response_result(server: &Server, response_result: Result<StatusResponse>) {
+    let response = match response_result {
+        Ok(response) => response,
+        Err(err) => {
+            println!("Error getting status for {} | {:?}\n", server.alias, err);
+            return;
+        }
+    };
+
     let players = &response.players;
 
     println!(
@@ -15,11 +25,5 @@ pub fn display_response(response: &StatusResponse, server: &Server) {
 
     if players.online > players.sample.len() as i32 {
         println!("...");
-    }
-}
-
-pub fn display_all_responses(all_responses: Vec<(StatusResponse, &Server)>) {
-    for (response, server) in &all_responses {
-        display_response(response, server);
     }
 }

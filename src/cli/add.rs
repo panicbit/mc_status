@@ -1,5 +1,5 @@
 use crate::{config, get_server_status, output, Config};
-use anyhow::{Context, Result};
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::ops::ControlFlow;
 
@@ -29,11 +29,9 @@ impl Cli {
         }
 
         config.server_list.insert(server.clone());
-        let server_status = get_server_status(&server.host, server.port)
-            .await
-            .context("failed to get server status")?;
+        let server_status = get_server_status(&server.host, server.port).await;
 
-        output::display_response(&server_status, &server);
+        output::display_response_result(&server, server_status);
         config.save()
     }
 
